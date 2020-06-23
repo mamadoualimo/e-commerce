@@ -6,12 +6,16 @@ const ProductContext = React.createContext();
 //Consumer
 
 class ProductProvider extends Component {
-    state ={
+    state = {
         products: [],
-        detailProduct:detailProduct,
-        cart:[],
-        modalOpen: true,
+        detailProduct: detailProduct,
+        cart: [],
+        modalOpen: false,
         modalProduct: detailProduct,
+        cartSubTotal: 0,
+        cartTax: 0,
+        cartTotal: 0
+
     };
     componentDidMount(){
         this.setProducts();
@@ -52,29 +56,61 @@ class ProductProvider extends Component {
                 return { products: tempProducts, cart: [...this.state.cart, product] };
             },
             () => {
-                console.log(this.state);
+                this.addTotals();
             }
         );
     };
     openModal = id =>{
         const product = this.getItem(id);
-        this.setState(()=>{
-            return {modalProduct:product,modalOpen:true}
-        })
-    }
+        this.setState(()=> {
+            return { modalProduct: product, modalOpen: true };
+        });
+    };
     closeModal = () =>{
-        this.setState(()=>{
-            return {modalOpen:false}
-        })
+        this.setState(() => {
+            return { modalOpen: false };
+        });
+    };
+
+    increment = (id) =>{
+        console.log('this is increment method');
     }
-        render() {
+
+    decrement = (id) =>{
+        console.log('this is decrement method');
+    }
+    removeItem = (id) =>{
+        console.log('item removed');
+    }
+   clearCart = () =>{
+        console.log('cart was cleared');
+    }
+    addTotals = () => {
+        let subTotal = 0;
+        this.state.cart.map(item => (subTotal += item.total));
+        const tempTax = subTotal * 0.1;
+        const tax = parseFloat(tempTax.toFixed(2));
+        const total = subTotal + tax;
+        this.setState(() => {
+            return {
+                cartSubTotal: subTotal,
+                cartTax: tax,
+                cartTotal: total
+            };
+        })
+    };
+    render() {
         return (
             <ProductContext.Provider value={{
                 ...this.state,
                 handleDetail: this.handleDetail,
                 addToCart: this.addToCart,
                 openModal: this.openModal,
-                closeModel: this.closeModal
+                closeModal: this.closeModal,
+                increment: this.increment,
+                decrement: this.decrement,
+                removeItem: this.removeItem,
+                clearCart: this.clearCart
             }}>
                 {this.props.children}
             </ProductContext.Provider>
